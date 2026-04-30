@@ -1,6 +1,10 @@
-﻿namespace RecruitmentApp.API.Services
+﻿using RecruitmentApp.API.DTOs;
+
+namespace RecruitmentApp.API.Services
 {
-    public class IAuthService
+    public interface IAuthService
     {
+        Task<AuthResponseDto> Register(RegisterDto registerDto);
+        Task<AuthResponseDto> Login(LoginDto loginDto);
     }
 }
