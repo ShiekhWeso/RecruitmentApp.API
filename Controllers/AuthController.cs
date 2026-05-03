@@ -42,5 +42,33 @@ namespace RecruitmentApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotpasswordDto)
+        {
+            try
+            {
+                var result = await _authService.ForgotPassword(forgotpasswordDto);
+                return Ok(new { message =  $"{result}", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            try
+            {
+                var result = await _authService.ResetPassword(resetPasswordDto);
+                return Ok(new { message = "Reset token generated successfully", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

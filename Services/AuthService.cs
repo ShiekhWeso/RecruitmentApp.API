@@ -107,5 +107,55 @@ namespace RecruitmentApp.API.Services
             // Step 4: Convert token to string and return it
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<string> ForgotPassword(ForgotPasswordDto forgotpasswordDto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == forgotpasswordDto.Email);
+            if (user == null) throw new Exception("Email doesn't exists");
+
+
+            var resetToken = Guid.NewGuid().ToString();
+
+            var passwordResetToken = new PasswordResetToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = resetToken,
+                ExpiresAt = DateTime.UtcNow.AddHours(1),
+                IsUsed = false
+            };
+
+            _context.PasswordResetTokens.Add(passwordResetToken);
+            //await _context.SaveChangesAsync();
+            try
+            {
+                _context.PasswordResetTokens.Add(passwordResetToken);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.InnerException?.Message ?? ex.Message);
+            }
+            //
+            return resetToken;
+        }
+
+        public async Task<string> ResetPassword(ResetPasswordDto resetpasswordDto)
+        {
+            var passwordResetToken = await _context.PasswordResetTokens.FirstOrDefaultAsync(prt => prt.Token == resetpasswordDto.Token);            
+            if (passwordResetToken == null) throw new Exception("Invalid reset token");
+
+            if (passwordResetToken.ExpiresAt < DateTime.UtcNow) throw new Exception("Reset token has expired");
+            if (passwordResetToken.IsUsed) throw new Exception("Reset token has already been used");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == passwordResetToken.UserId);
+            if (user == null) throw new Exception("User not found");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(resetpasswordDto.NewPass);
+            passwordResetToken.IsUsed = true;
+
+            await _context.SaveChangesAsync();
+            return "Password reset successful";
+        }
     }
 }
