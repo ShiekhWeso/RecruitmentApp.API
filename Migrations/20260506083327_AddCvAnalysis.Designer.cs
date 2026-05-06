@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecruitmentApp.API.Data;
 
@@ -11,9 +12,11 @@ using RecruitmentApp.API.Data;
 namespace RecruitmentApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260506083327_AddCvAnalysis")]
+    partial class AddCvAnalysis
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +35,9 @@ namespace RecruitmentApp.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("CvId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CvUploadId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ExperienceLevel")
@@ -57,6 +63,8 @@ namespace RecruitmentApp.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CvUploadId");
 
                     b.ToTable("CvAnalyses");
                 });
@@ -89,7 +97,7 @@ namespace RecruitmentApp.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CvUploads");
+                    b.ToTable("CvUpload");
                 });
 
             modelBuilder.Entity("RecruitmentApp.API.Models.PasswordResetToken", b =>
@@ -158,6 +166,17 @@ namespace RecruitmentApp.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RecruitmentApp.API.Models.CvAnalysis", b =>
+                {
+                    b.HasOne("RecruitmentApp.API.Models.CvUpload", "CvUpload")
+                        .WithMany()
+                        .HasForeignKey("CvUploadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CvUpload");
                 });
 
             modelBuilder.Entity("RecruitmentApp.API.Models.CvUpload", b =>
