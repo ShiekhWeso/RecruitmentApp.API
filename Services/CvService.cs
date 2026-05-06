@@ -45,8 +45,42 @@ namespace RecruitmentApp.API.Services
                 UploadedAt = DateTime.UtcNow
             };
 
-            _context.CvUpload.Add(cvUpload);
+            _context.CvUploads.Add(cvUpload);
             await _context.SaveChangesAsync();
+
+            /*try
+            {
+                _context.CvUploads.Add(cvUpload);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                var innerMessage = ex.InnerException?.InnerException?.Message
+                                ?? ex.InnerException?.Message
+                                ?? ex.Message;
+                throw new Exception(innerMessage);
+            }
+            */
+
+            var analysis = GenerateMockAnalysis(cvUpload.Id, userId);
+            _context.CvAnalyses.Add(analysis);
+            cvUpload.Status = "analyzed";
+            await _context.SaveChangesAsync();
+
+            /*try
+            {
+                var analysis = GenerateMockAnalysis(cvUpload.Id, userId);
+                _context.CvAnalyses.Add(analysis);
+                cvUpload.Status = "analyzed";
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                var innerMessage = ex.InnerException?.InnerException?.Message
+                                ?? ex.InnerException?.Message
+                                ?? ex.Message;
+                throw new Exception(innerMessage);
+            }*/
 
             return new CvUploadResponseDto
             {
@@ -54,6 +88,42 @@ namespace RecruitmentApp.API.Services
                 FileName = file.FileName,
                 Status = "uploaded",
                 Message = "CV uploaded successfully, AI analysis in progress"
+            };
+        }
+
+        private CvAnalysis GenerateMockAnalysis(Guid cvId, Guid userId)
+        {
+            var mockSkills = new List<string> { "Communication", "Problem Solving", "Teamwork" };
+            var mockGaps = new List<string> { "Docker", "System Design", "Cloud Computing" };
+
+            return new CvAnalysis
+            {
+                Id = Guid.NewGuid(),
+                CvId = cvId,
+                UserId = userId,
+                Skills = System.Text.Json.JsonSerializer.Serialize(mockSkills),
+                Gaps = System.Text.Json.JsonSerializer.Serialize(mockGaps),
+                Score = new Random().Next(50, 90),
+                ExperienceLevel = "Junior",
+                Field = "Software Development",
+                AnalyzedAt = DateTime.UtcNow
+            };
+        }
+
+        public async Task<CvAnalysisResponseDto> GetCvAnalysis(Guid userId)
+        {
+            var analysis = await _context.CvAnalyses.Where(a => a.UserId == userId).OrderByDescending(a => a.AnalyzedAt).FirstOrDefaultAsync();
+
+            if (analysis == null) throw new Exception("No CV analysis found");
+
+            return new CvAnalysisResponseDto
+            {
+                CvId = analysis.CvId,
+                Skills = System.Text.Json.JsonSerializer.Deserialize<List<string>>(analysis.Skills) ?? new(),
+                Gaps = System.Text.Json.JsonSerializer.Deserialize<List<string>>(analysis.Gaps) ?? new(),
+                Score = analysis.Score,
+                ExperienceLevel = analysis.ExperienceLevel,
+                Field = analysis.Field
             };
         }
     }

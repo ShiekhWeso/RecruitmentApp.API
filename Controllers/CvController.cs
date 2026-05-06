@@ -34,5 +34,23 @@ namespace RecruitmentApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("analysis")]
+        public async Task<IActionResult> GetAnalysis()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null) return Unauthorized(new { message = "Invalid token" });
+
+                var userId = Guid.Parse(userIdClaim);
+                var result = await _cvService.GetCvAnalysis(userId);
+                return Ok(new { message = "Analysis retrieved", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
