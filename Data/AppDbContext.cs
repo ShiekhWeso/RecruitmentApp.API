@@ -13,5 +13,6 @@ namespace RecruitmentApp.API.Data
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; } 
         public DbSet<CvUpload> CvUploads { get; set; }
         public DbSet<CvAnalysis> CvAnalyses { get; set; }
+        public DbSet<Job> Jobs { get; set; }
     }
 }
