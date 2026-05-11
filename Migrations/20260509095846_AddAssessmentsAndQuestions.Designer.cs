@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecruitmentApp.API.Data;
 
@@ -11,9 +12,11 @@ using RecruitmentApp.API.Data;
 namespace RecruitmentApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509095846_AddAssessmentsAndQuestions")]
+    partial class AddAssessmentsAndQuestions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,7 +200,7 @@ namespace RecruitmentApp.API.Migrations
                     b.ToTable("PasswordResetTokens");
                 });
 
-            modelBuilder.Entity("RecruitmentApp.API.Models.Question", b =>
+            modelBuilder.Entity("RecruitmentApp.API.Models.Questions", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
