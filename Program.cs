@@ -54,6 +54,8 @@ builder.Services.AddScoped<IJobService, JobService>();
 
 builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 
+builder.Services.AddScoped<ICourseService, CourseService>();
+
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];

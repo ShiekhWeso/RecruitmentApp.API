@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace RecruitmentApp.API.Controllers
 {
     [ApiController]
-    [Route("api/[conterller]")]
+    [Route("api/[controller]")]
     [Authorize]
     public class AssessmentController : ControllerBase
     {
