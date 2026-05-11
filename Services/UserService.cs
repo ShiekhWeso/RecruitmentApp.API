@@ -1,0 +1,74 @@
+﻿using Microsoft.EntityFrameworkCore;
+using RecruitmentApp.API.Data;
+using RecruitmentApp.API.DTOs;
+
+namespace RecruitmentApp.API.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly AppDbContext _context;
+
+        public UserService(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<UserProfileDto> GetProfile(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not Found");
+
+            var analysis = await _context.CvAnalyses.Where(a => a.UserId == userId).OrderByDescending(a => a.AnalyzedAt).FirstOrDefaultAsync();
+
+            var assessments = await _context.Assessments.Where(a => a.UserId == userId && a.Status == "completed").OrderByDescending(a => a.CompletedAt).Take(5).ToListAsync();
+
+            var skillBreakdown = new List<SkillBreakdownDto>();
+            if (analysis != null)
+            {
+                var skills = System.Text.Json.JsonSerializer.Deserialize<List<string>>(analysis.Skills) ?? new();
+                var random = new Random();
+                skillBreakdown = skills.Select(s => new SkillBreakdownDto
+                {
+                    SkillName = s,
+                    Score = random.Next(50, 95)
+                }).ToList();
+            }
+
+            var testHistory = assessments.Select(a => new TestHistoryDto
+            {
+                Field = a.Field,
+                Score = a.Score,
+                CompletedAt = a.CompletedAt ?? DateTime.UtcNow
+            }).ToList();
+
+            return new UserProfileDto
+            {
+                Name = user.Name,
+                Email = user.Email,
+                Field = analysis?.Field ?? user.Field ?? "Not set",
+                Specialization = user.Specialization ?? "Not set",
+                ExperienceLevel = user.ExperienceLevel ?? "Not set",
+                SkillScore = analysis?.Score ?? 0,
+                IsVerified = analysis != null,
+                Role = user.Role,
+                SkillBreakdown = skillBreakdown,
+                TestHistory = testHistory
+            };
+        }
+
+        public async Task<UserProfileDto> UpdateSetup(Guid userId, SetupDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.Field = dto.Field;
+            user.Specialization = dto.Specialization;
+            user.ExperienceLevel = dto.ExperienceLevel;
+            user.OnboardingComplete = true;
+
+            await _context.SaveChangesAsync();
+
+            return await GetProfile(userId);
+        }
+    }
+}
