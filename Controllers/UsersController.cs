@@ -74,5 +74,24 @@ namespace RecruitmentApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null)
+                    return Unauthorized(new { message = "Invalid token" });
+
+                var userId = Guid.Parse(userIdClaim);
+                var result = await _userService.UpdateProfile(userId, dto);
+                return Ok(new { message = "Profile updated", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

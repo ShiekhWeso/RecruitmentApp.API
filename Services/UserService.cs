@@ -70,5 +70,22 @@ namespace RecruitmentApp.API.Services
 
             return await GetProfile(userId);
         }
+
+        public async Task<UserProfileDto> UpdateProfile(Guid userId, UpdateProfileDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (!string.IsNullOrEmpty(dto.Name)) user.Name = dto.Name;
+
+            if (!string.IsNullOrEmpty(dto.Field)) user.Field = dto.Field;
+
+            if (!string.IsNullOrEmpty(dto.Specialization)) user.Specialization = dto.Specialization;
+
+            if (!string.IsNullOrEmpty(dto.ExperienceLevel)) user.ExperienceLevel = dto.ExperienceLevel;
+
+            await _context.SaveChangesAsync();
+            return await GetProfile(userId);
+        }
     }
 }
