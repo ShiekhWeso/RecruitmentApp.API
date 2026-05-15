@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RecruitmentApp.API.DTOs;
 using RecruitmentApp.API.Services;
 
@@ -49,7 +50,7 @@ namespace RecruitmentApp.API.Controllers
             try
             {
                 var result = await _authService.ForgotPassword(forgotpasswordDto);
-                return Ok(new { message =  $"{result}", data = result });
+                return Ok(new { message = $"{result}", data = result });
             }
             catch (Exception ex)
             {
@@ -64,6 +65,36 @@ namespace RecruitmentApp.API.Controllers
             {
                 var result = await _authService.ResetPassword(resetPasswordDto);
                 return Ok(new { message = "Reset token generated successfully", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        {
+            try
+            {
+                var result = await _authService.RefreshToken(refreshToken);
+                return Ok(new { message = "Token refreshed successfully", data = result });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("revoke-token")]
+        [Authorize]
+        public async Task<IActionResult> RevokeToken([FromBody] string refreshToken)
+        {
+            try
+            {
+                var result = await _authService.RevokeToken(refreshToken);
+                if (!result) return BadRequest(new { message = "Token not found or already revoked" });
+                return Ok(new { message = "Token revoked successfully" });
             }
             catch (Exception ex)
             {

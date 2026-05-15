@@ -24,11 +24,9 @@ namespace RecruitmentApp.API.Services
 
         public async Task<AuthResponseDto> Register(RegisterDto registerDto)
         {
-            // Step 1: Check if email already exists
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == registerDto.Email);
             if (existingUser != null) throw new Exception("Email already exists");
 
-            // Step 2: Create new user object
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -39,17 +37,16 @@ namespace RecruitmentApp.API.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            // Step 3: Save user to database
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // Step 4: Generate token and return response
             var token = GenerateJwtToken(user);
+            var refreshToken = await GenerateAndSaveRefreshToken(user.Id);
 
             return new AuthResponseDto
             {
                 Token = token,
-                RefreshToken = "",
+                RefreshToken = refreshToken,
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role
@@ -58,35 +55,95 @@ namespace RecruitmentApp.API.Services
 
         public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
-            // Step 1: Find user by email
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email);
             if (user == null) throw new Exception("Invalid email or password");
 
-            // Step 2: Check password
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash);
             if (!isPasswordValid) throw new Exception("Invalid email or password");
 
-            // Step 3: Generate token and return response
             var token = GenerateJwtToken(user);
+            var refreshToken = await GenerateAndSaveRefreshToken(user.Id);
 
             return new AuthResponseDto
             {
                 Token = token,
-                RefreshToken = "",
+                RefreshToken = refreshToken,
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role
             };
         }
 
-        private String GenerateJwtToken(User user)
+        public async Task<AuthResponseDto> RefreshToken(string refreshToken)
         {
-            // Step 1: Get the secret key from appsettings.json
+            // Step 1: Find the token in the database
+            var storedToken = await _context.RefreshTokens
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Token == refreshToken);
+
+            // Step 2: Validate it
+            if (storedToken == null || storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
+                throw new Exception("Invalid or expired refresh token");
+
+            // Step 3: Revoke the old refresh token (one time use)
+            storedToken.IsRevoked = true;
+            await _context.SaveChangesAsync();
+
+            // Step 4: Generate new access token + new refresh token
+            var newAccessToken = GenerateJwtToken(storedToken.User);
+            var newRefreshToken = await GenerateAndSaveRefreshToken(storedToken.User.Id);
+
+            return new AuthResponseDto
+            {
+                Token = newAccessToken,
+                RefreshToken = newRefreshToken,
+                Name = storedToken.User.Name,
+                Email = storedToken.User.Email,
+                Role = storedToken.User.Role
+            };
+        }
+
+        public async Task<bool> RevokeToken(string refreshToken)
+        {
+            var storedToken = await _context.RefreshTokens
+                .FirstOrDefaultAsync(r => r.Token == refreshToken);
+
+            if (storedToken == null || storedToken.IsRevoked)
+                return false;
+
+            storedToken.IsRevoked = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private async Task<string> GenerateAndSaveRefreshToken(Guid userId)
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            var refreshTokenValue = Convert.ToBase64String(randomBytes);
+
+            var refreshToken = new RefreshToken
+            {
+                Token = refreshTokenValue,
+                UserId = userId,
+                ExpiryDate = DateTime.UtcNow.AddDays(30),
+                IsRevoked = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.RefreshTokens.Add(refreshToken);
+            await _context.SaveChangesAsync();
+
+            return refreshTokenValue;
+        }
+
+        private string GenerateJwtToken(User user)
+        {
             var secretKey = _configuration["JwtSettings:SecretKey"];
             var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
             var credentials = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256);
 
-            // Step 2: Define the claims (info stored inside the token)
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -95,16 +152,14 @@ namespace RecruitmentApp.API.Services
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            // Step 3: Create the token
             var token = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["JwtSettings:ExpiryMinutes"])),
                 signingCredentials: credentials
-                );
+            );
 
-            // Step 4: Convert token to string and return it
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
@@ -112,7 +167,6 @@ namespace RecruitmentApp.API.Services
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == forgotpasswordDto.Email);
             if (user == null) throw new Exception("Email doesn't exists");
-
 
             var resetToken = Guid.NewGuid().ToString();
 
@@ -125,8 +179,6 @@ namespace RecruitmentApp.API.Services
                 IsUsed = false
             };
 
-            _context.PasswordResetTokens.Add(passwordResetToken);
-            //await _context.SaveChangesAsync();
             try
             {
                 _context.PasswordResetTokens.Add(passwordResetToken);
@@ -136,13 +188,14 @@ namespace RecruitmentApp.API.Services
             {
                 throw new Exception(ex.InnerException?.Message ?? ex.Message);
             }
-            //
+
             return resetToken;
         }
 
         public async Task<string> ResetPassword(ResetPasswordDto resetpasswordDto)
         {
-            var passwordResetToken = await _context.PasswordResetTokens.FirstOrDefaultAsync(prt => prt.Token == resetpasswordDto.Token);            
+            var passwordResetToken = await _context.PasswordResetTokens
+                .FirstOrDefaultAsync(prt => prt.Token == resetpasswordDto.Token);
             if (passwordResetToken == null) throw new Exception("Invalid reset token");
 
             if (passwordResetToken.ExpiresAt < DateTime.UtcNow) throw new Exception("Reset token has expired");

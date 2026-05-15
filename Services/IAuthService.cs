@@ -8,5 +8,7 @@ namespace RecruitmentApp.API.Services
         Task<AuthResponseDto> Login(LoginDto loginDto);
         Task<string> ForgotPassword(ForgotPasswordDto forgotpasswordDto);
         Task<string> ResetPassword(ResetPasswordDto resetpasswordDto);
+        Task<AuthResponseDto> RefreshToken(string refreshToken);
+        Task<bool> RevokeToken(string refreshToken);
     }
 }

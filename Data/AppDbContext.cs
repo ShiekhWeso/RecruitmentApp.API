@@ -16,5 +16,6 @@ namespace RecruitmentApp.API.Data
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Assessment> Assessments { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }
