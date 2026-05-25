@@ -49,7 +49,8 @@ namespace RecruitmentApp.API.Services
                 RefreshToken = refreshToken,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                UserId = user.Id
             };
         }
 
@@ -70,7 +71,8 @@ namespace RecruitmentApp.API.Services
                 RefreshToken = refreshToken,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                UserId = user.Id
             };
         }
 
@@ -99,7 +101,8 @@ namespace RecruitmentApp.API.Services
                 RefreshToken = newRefreshToken,
                 Name = storedToken.User.Name,
                 Email = storedToken.User.Email,
-                Role = storedToken.User.Role
+                Role = storedToken.User.Role,
+                UserId = storedToken.User.Id
             };
         }
 
