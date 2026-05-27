@@ -87,5 +87,38 @@ namespace RecruitmentApp.API.Services
             await _context.SaveChangesAsync();
             return await GetProfile(userId);
         }
+
+        public Task<SetupOptionsDto> GetSetupOptions()
+        {
+            var options = new SetupOptionsDto
+            {
+                Fields = new List<string>
+        {
+            "Software Dev",
+            "Marketing",
+            "Design",
+            "Finance",
+            "Human Resources",
+            "Sales"
+        },
+                Specializations = new Dictionary<string, List<string>>
+        {
+            { "Software Dev", new List<string> { "Frontend Developer", "Backend Developer", "Full Stack Developer", "Mobile Developer", "DevOps Engineer", "Data Scientist" } },
+            { "Marketing", new List<string> { "Digital Marketing", "Content Marketing", "SEO Specialist", "Social Media Manager", "Brand Manager" } },
+            { "Design", new List<string> { "UI/UX Designer", "Graphic Designer", "Motion Designer", "Product Designer" } },
+            { "Finance", new List<string> { "Financial Analyst", "Accountant", "Investment Banker", "Risk Analyst" } },
+            { "Human Resources", new List<string> { "HR Generalist", "Recruiter", "Training Specialist", "Compensation Analyst" } },
+            { "Sales", new List<string> { "Sales Representative", "Account Manager", "Business Development", "Sales Manager" } }
+        },
+                ExperienceLevels = new List<string>
+        {
+            "Junior (0-2 years)",
+            "Mid-level (2-5 years)",
+            "Senior (5+ years)"
+        }
+            };
+
+            return Task.FromResult(options);
+        }
     }
 }

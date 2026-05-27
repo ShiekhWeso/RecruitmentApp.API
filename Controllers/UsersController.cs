@@ -93,5 +93,20 @@ namespace RecruitmentApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("setup-options")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSetupOptions()
+        {
+            try
+            {
+                var result = await _userService.GetSetupOptions();
+                return Ok(new { message = "Setup options retrieved successfully", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
