@@ -92,23 +92,14 @@ namespace RecruitmentApp.API.Services
         {
             var options = new SetupOptionsDto
             {
-                Fields = new List<string>
+                Fields = new List<FieldWithSpecializationsDto>
         {
-            "Software Dev",
-            "Marketing",
-            "Design",
-            "Finance",
-            "Human Resources",
-            "Sales"
-        },
-                Specializations = new Dictionary<string, List<string>>
-        {
-            { "Software Dev", new List<string> { "Frontend Developer", "Backend Developer", "Full Stack Developer", "Mobile Developer", "DevOps Engineer", "Data Scientist" } },
-            { "Marketing", new List<string> { "Digital Marketing", "Content Marketing", "SEO Specialist", "Social Media Manager", "Brand Manager" } },
-            { "Design", new List<string> { "UI/UX Designer", "Graphic Designer", "Motion Designer", "Product Designer" } },
-            { "Finance", new List<string> { "Financial Analyst", "Accountant", "Investment Banker", "Risk Analyst" } },
-            { "Human Resources", new List<string> { "HR Generalist", "Recruiter", "Training Specialist", "Compensation Analyst" } },
-            { "Sales", new List<string> { "Sales Representative", "Account Manager", "Business Development", "Sales Manager" } }
+            new FieldWithSpecializationsDto { Name = "Software Dev", Specializations = new List<string> { "Frontend Developer", "Backend Developer", "Full Stack Developer", "Mobile Developer", "DevOps Engineer", "Data Scientist" } },
+            new FieldWithSpecializationsDto { Name = "Marketing", Specializations = new List<string> { "Digital Marketing", "Content Marketing", "SEO Specialist", "Social Media Manager", "Brand Manager" } },
+            new FieldWithSpecializationsDto { Name = "Design", Specializations = new List<string> { "UI/UX Designer", "Graphic Designer", "Motion Designer", "Product Designer" } },
+            new FieldWithSpecializationsDto { Name = "Finance", Specializations = new List<string> { "Financial Analyst", "Accountant", "Investment Banker", "Risk Analyst" } },
+            new FieldWithSpecializationsDto { Name = "Human Resources", Specializations = new List<string> { "HR Generalist", "Recruiter", "Training Specialist", "Compensation Analyst" } },
+            new FieldWithSpecializationsDto { Name = "Sales", Specializations = new List<string> { "Sales Representative", "Account Manager", "Business Development", "Sales Manager" } }
         },
                 ExperienceLevels = new List<string>
         {
