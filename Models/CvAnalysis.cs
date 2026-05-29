@@ -10,6 +10,7 @@
         public int Score { get; set; }
         public string ExperienceLevel { get; set; } = string.Empty;
         public string Field { get; set; } = string.Empty;
+        public string Specialization { get; set; } = string.Empty;
         public DateTime AnalyzedAt { get; set; } = DateTime.UtcNow;
     }
 }

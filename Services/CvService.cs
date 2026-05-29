@@ -123,7 +123,8 @@ namespace RecruitmentApp.API.Services
                 Gaps = System.Text.Json.JsonSerializer.Deserialize<List<string>>(analysis.Gaps) ?? new(),
                 Score = analysis.Score,
                 ExperienceLevel = analysis.ExperienceLevel,
-                Field = analysis.Field
+                Field = analysis.Field,
+                Specialization = analysis.Specialization ?? string.Empty
             };
         }
     }
