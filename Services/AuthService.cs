@@ -42,6 +42,7 @@ namespace RecruitmentApp.API.Services
 
             var token = GenerateJwtToken(user);
             var refreshToken = await GenerateAndSaveRefreshToken(user.Id);
+            var hasCv = await _context.CvUploads.AnyAsync(c => c.UserId == user.Id);
 
             return new AuthResponseDto
             {
@@ -50,7 +51,9 @@ namespace RecruitmentApp.API.Services
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role,
-                UserId = user.Id
+                UserId = user.Id,
+                OnboardingComplete = user.OnboardingComplete,
+                HasCv = hasCv
             };
         }
 
@@ -72,7 +75,9 @@ namespace RecruitmentApp.API.Services
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role,
-                UserId = user.Id
+                UserId = user.Id,
+                OnboardingComplete = false,
+                HasCv = false
             };
         }
 

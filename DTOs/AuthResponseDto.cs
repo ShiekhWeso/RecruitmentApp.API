@@ -1,4 +1,6 @@
-﻿namespace RecruitmentApp.API.DTOs
+﻿using Microsoft.Identity.Client;
+
+namespace RecruitmentApp.API.DTOs
 {
     public class AuthResponseDto
     {
@@ -8,5 +10,7 @@
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public Guid UserId { get; set; }
+        public bool OnboardingComplete { get; set; }
+        public bool HasCv { get; set; }
     }
 }
