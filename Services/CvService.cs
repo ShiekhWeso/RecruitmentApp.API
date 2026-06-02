@@ -24,16 +24,19 @@ namespace RecruitmentApp.API.Services
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
             if (!allowedExtensions.Contains(fileExtension)) throw new Exception("Only PDF and Word Documents are allowed");
 
-            var uploadsFolder = Path.Combine(_environment.ContentRootPath, "Uploads", "CVs");
-            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+            //var uploadsFolder = Path.Combine(_environment.ContentRootPath, "Uploads", "CVs");
+            //if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+            //var uniqueFileName = $"{userId}_{Guid.NewGuid()}{fileExtension}";
+            //var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            //using (var stream = new FileStream(filePath, FileMode.Create))
+            //{
+            //    await file.CopyToAsync(stream);
+            //}
 
             var uniqueFileName = $"{userId}_{Guid.NewGuid()}{fileExtension}";
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            var filePath = uniqueFileName; 
 
             var cvUpload = new CvUpload
             {
