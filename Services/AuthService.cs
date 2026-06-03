@@ -76,8 +76,8 @@ namespace RecruitmentApp.API.Services
                 Email = user.Email,
                 Role = user.Role,
                 UserId = user.Id,
-                OnboardingComplete = false,
-                HasCv = false
+                OnboardingComplete = user.OnboardingComplete,
+                HasCv = user.HasCv
             };
         }
 
