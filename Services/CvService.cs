@@ -70,6 +70,11 @@ namespace RecruitmentApp.API.Services
             cvUpload.Status = "analyzed";
             await _context.SaveChangesAsync();
 
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null) user.HasCv = true;
+
+            await _context.SaveChangesAsync();
+
             /*try
             {
                 var analysis = GenerateMockAnalysis(cvUpload.Id, userId);
