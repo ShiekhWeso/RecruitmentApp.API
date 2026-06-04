@@ -45,6 +45,7 @@ namespace RecruitmentApp.API.Services
             {
                 Name = user.Name,
                 Email = user.Email,
+                Location = user.Locatoin?? "Not set",
                 Field = analysis?.Field ?? user.Field ?? "Not set",
                 Specialization = user.Specialization ?? "Not set",
                 ExperienceLevel = user.ExperienceLevel ?? "Not set",

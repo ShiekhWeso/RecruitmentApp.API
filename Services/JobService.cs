@@ -13,10 +13,16 @@ namespace RecruitmentApp.API.Services
             _context = context;
         }
 
-        public async Task<List<JobMatchListDto>> GetJobMatches(Guid userId)
+        public async Task<List<JobMatchListDto>> GetJobMatches(Guid userId, string? field = null, string? location = null, string? jobType = null)
         {
             var analysis = await _context.CvAnalyses.Where(a => a.UserId == userId).OrderByDescending(a => a.AnalyzedAt).FirstOrDefaultAsync();
-            var jobs = await _context.Jobs.Where(j => j.IsActive).ToListAsync();
+            var query = _context.Jobs.Where(j => j.IsActive);
+
+            if (!string.IsNullOrEmpty(field)) query = query.Where(j => j.Field == field);
+            if (!string.IsNullOrEmpty(location)) query = query.Where(j => j.Location == location);
+            if (!string.IsNullOrEmpty(jobType)) query = query.Where(j => j.JobType == jobType);
+
+            var jobs = await query.ToListAsync();
 
             if (!jobs.Any())
             {

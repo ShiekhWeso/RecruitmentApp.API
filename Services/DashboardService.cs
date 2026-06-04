@@ -18,7 +18,7 @@ namespace RecruitmentApp.API.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) throw new Exception("User not found");
 
-            var analysis = await _context.CvAnalyses.Where(a => a.Id == userId).OrderByDescending(a => a.AnalyzedAt).FirstOrDefaultAsync();
+            var analysis = await _context.CvAnalyses.Where(a => a.UserId == userId).OrderByDescending(a => a.AnalyzedAt).FirstOrDefaultAsync();
 
             var jobMatches = new List<JobMatchDto>
             {
