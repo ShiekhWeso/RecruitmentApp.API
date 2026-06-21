@@ -88,6 +88,55 @@ namespace RecruitmentApp.API.Services
             };
         }
 
+        public async Task<AssessmentMainDto> GetAssessmentMain(Guid userId)
+        {
+            var completed = await _context.Assessments
+                .Where(a => a.UserId == userId && a.Status == "completed")
+                .ToListAsync();
+
+            var avgScore = completed.Any() ? (int)completed.Average(a => a.Score) : 0;
+            var badges = completed.Count(a => a.Score >= 80);
+
+            var rank = avgScore >= 85 ? "Top 15%" : avgScore >= 70 ? "Top 30%" : "Top 50%";
+
+            return new AssessmentMainDto
+            {
+                CompletedCount = completed.Count,
+                AvgScore = avgScore,
+                Badges = badges,
+                Rank = rank,
+                Recommended = new List<RecommendedAssessmentDto>
+        {
+            new() { Title = "React.js Advanced", Priority = "HIGH", Duration = "25 mins", XpReward = 60 },
+            new() { Title = "System Design", Priority = "MEDIUM", Duration = "30 mins", XpReward = 80 }
+        },
+                Available = new List<AvailableAssessmentDto>
+        {
+            new() { Field = "UI/UX Principles", Duration = "20 mins", XpReward = 40 },
+            new() { Field = "Python Fundamentals", Duration = "30 mins", XpReward = 60 },
+            new() { Field = "Product Management", Duration = "45 mins", XpReward = 80 }
+        }
+            };
+        }
+
+        public async Task<List<AssessmentHistoryDto>> GetTestHistory(Guid userId)
+        {
+            var assessments = await _context.Assessments
+                .Where(a => a.UserId == userId && a.Status == "completed")
+                .OrderByDescending(a => a.CompletedAt)
+                .ToListAsync();
+
+            return assessments.Select(a => new AssessmentHistoryDto
+            {
+                Id = a.Id,
+                Field = a.Field,
+                Specialization = a.Specialization,
+                Score = a.Score,
+                Status = a.Score >= 80 ? "Expert" : a.Score >= 65 ? "Qualified" : a.Score >= 50 ? "Developing" : "Gap Identified",
+                CompletedAt = a.CompletedAt ?? DateTime.UtcNow
+            }).ToList();
+        }
+
         private async Task<List<Question>> GetorCreateQuestions(string field)
         {
             var existing = await _context.Questions.Where(q => q.Field == field).Take(20).ToListAsync();

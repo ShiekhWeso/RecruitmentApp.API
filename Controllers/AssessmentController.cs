@@ -55,5 +55,29 @@ namespace RecruitmentApp.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("main")]
+        public async Task<IActionResult> GetAssessmentMain()
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var result = await _assessmentService.GetAssessmentMain(userId);
+                return Ok(new { message = "Assessment main retrieved", data = result });
+            }
+            catch (Exception ex) { return BadRequest(new { message = ex.Message }); }
+        }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetTestHistory()
+        {
+            try
+            {
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var result = await _assessmentService.GetTestHistory(userId);
+                return Ok(new { message = "Test history retrieved", data = result });
+            }
+            catch (Exception ex) { return BadRequest(new { message = ex.Message }); }
+        }
     }
 }

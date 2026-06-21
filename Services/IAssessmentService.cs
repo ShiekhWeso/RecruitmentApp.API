@@ -6,5 +6,7 @@ namespace RecruitmentApp.API.Services
     {
         Task<AssessmentSessionDto> StartAssessment(Guid userId, StartAssessmentDto dto);
         Task<AssessmentResultDto> SubmitAssessment(Guid userId, Guid sessionId, SubmitAssessmentDto dto);
+        Task<AssessmentMainDto> GetAssessmentMain(Guid userId);
+        Task<List<AssessmentHistoryDto>> GetTestHistory(Guid userId);
     }
 }

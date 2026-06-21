@@ -12,5 +12,8 @@
         public DateTime StartedAt { get; set; } = DateTime.UtcNow;
         public DateTime? CompletedAt { get; set; }
         public User User { get; set; } = null!;
+        public string Specialization { get; set; } = string.Empty;
+        public int BadgesEarned { get; set; } = 0;
+        public string Rank { get; set; } = string.Empty;
     }
 }
