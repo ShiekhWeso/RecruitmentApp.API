@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitmentApp.API.Data;
 using RecruitmentApp.API.DTOs;
+using RecruitmentApp.API.Models;
 
 namespace RecruitmentApp.API.Services
 {
@@ -47,6 +48,115 @@ namespace RecruitmentApp.API.Services
                 MatchPercentage = userScore >= j.MinScore ? Math.Min(100, userScore + new Random().Next(-10, 10)) : Math.Max(30, userScore - new Random().Next(10, 20)),
                 Field = j.Field
             }).OrderByDescending(j => j.MatchPercentage).ToList();
+        }
+
+        public async Task<JobMatchListDto> GetJobDetail(Guid jobId, Guid userId)
+        {
+            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == jobId);
+            if (job == null) throw new Exception("Job not found");
+
+            var analysis = await _context.CvAnalyses
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.AnalyzedAt)
+                .FirstOrDefaultAsync();
+
+            var userScore = analysis?.Score ?? 0;
+            var matchPercentage = userScore >= job.MinScore
+                ? Math.Min(100, userScore + new Random().Next(-10, 10))
+                : Math.Max(30, userScore - new Random().Next(10, 20));
+
+            return new JobMatchListDto
+            {
+                Id = job.Id,
+                Title = job.Title,
+                Company = job.Company,
+                Location = job.Location,
+                JobType = job.JobType,
+                MatchPercentage = matchPercentage,
+                Field = job.Field
+            };
+        }
+
+        public async Task<JobApplicationDto> ApplyToJob(Guid userId, ApplyJobDto dto)
+        {
+            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == dto.JobId);
+            if (job == null) throw new Exception("Job not found");
+
+            var existing = await _context.JobApplications
+                .FirstOrDefaultAsync(a => a.UserId == userId && a.JobId == dto.JobId);
+            if (existing != null) throw new Exception("Already applied to this job");
+
+            var analysis = await _context.CvAnalyses
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.AnalyzedAt)
+                .FirstOrDefaultAsync();
+
+            var userScore = analysis?.Score ?? 0;
+            var matchPercentage = userScore >= job.MinScore
+                ? Math.Min(100, userScore + new Random().Next(-10, 10))
+                : Math.Max(30, userScore - new Random().Next(10, 20));
+
+            var application = new JobApplication
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                JobId = dto.JobId,
+                Status = "Pending",
+                MatchPercentage = matchPercentage,
+                AppliedAt = DateTime.UtcNow
+            };
+
+            _context.JobApplications.Add(application);
+            await _context.SaveChangesAsync();
+
+            return new JobApplicationDto
+            {
+                Id = application.Id,
+                JobId = job.Id,
+                Title = job.Title,
+                Company = job.Company,
+                Location = job.Location,
+                JobType = job.JobType,
+                Status = application.Status,
+                MatchPercentage = matchPercentage,
+                AppliedAt = application.AppliedAt
+            };
+        }
+
+        public async Task<List<JobApplicationDto>> GetApplications(Guid userId, string? status = null)
+        {
+            var query = _context.JobApplications
+                .Include(a => a.Job)
+                .Where(a => a.UserId == userId);
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(a => a.Status == status);
+
+            var applications = await query.OrderByDescending(a => a.AppliedAt).ToListAsync();
+
+            return applications.Select(a => new JobApplicationDto
+            {
+                Id = a.Id,
+                JobId = a.Job.Id,
+                Title = a.Job.Title,
+                Company = a.Job.Company,
+                Location = a.Job.Location,
+                JobType = a.Job.JobType,
+                Status = a.Status,
+                MatchPercentage = a.MatchPercentage,
+                AppliedAt = a.AppliedAt
+            }).ToList();
+        }
+
+        public async Task<bool> WithdrawApplication(Guid userId, Guid applicationId)
+        {
+            var application = await _context.JobApplications
+                .FirstOrDefaultAsync(a => a.Id == applicationId && a.UserId == userId);
+            if (application == null) throw new Exception("Application not found");
+
+            _context.JobApplications.Remove(application);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
