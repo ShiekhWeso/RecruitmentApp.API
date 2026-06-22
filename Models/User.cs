@@ -14,5 +14,6 @@
         public bool OnboardingComplete { get; set; } = false;
         public bool HasCv { get; set; } = false;
         public string? Locatoin { get; set; }
+        public int XP { get; set; } = 0;
     }
 }
