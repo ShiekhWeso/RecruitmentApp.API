@@ -106,16 +106,16 @@ namespace RecruitmentApp.API.Services
                 Badges = badges,
                 Rank = rank,
                 Recommended = new List<RecommendedAssessmentDto>
-        {
-            new() { Title = "React.js Advanced", Priority = "HIGH", Duration = "25 mins", XpReward = 60 },
-            new() { Title = "System Design", Priority = "MEDIUM", Duration = "30 mins", XpReward = 80 }
-        },
+                {
+                    new() { Title = "React.js Advanced", Description = "Validate your expertise in React hooks, state management, and performance.", Priority = "HIGH", Duration = "25 mins", XpReward = 60 },
+                    new() { Title = "System Design", Description = "Test your ability to design scalable distributed systems.", Priority = "MEDIUM", Duration = "30 mins", XpReward = 80 }
+                },
                 Available = new List<AvailableAssessmentDto>
-        {
-            new() { Field = "UI/UX Principles", Duration = "20 mins", XpReward = 40 },
-            new() { Field = "Python Fundamentals", Duration = "30 mins", XpReward = 60 },
-            new() { Field = "Product Management", Duration = "45 mins", XpReward = 80 }
-        }
+                {
+                    new() { Field = "UI/UX Principles", Duration = "20 mins", XpReward = 40 },
+                    new() { Field = "Python Fundamentals", Duration = "30 mins", XpReward = 60 },
+                    new() { Field = "Product Management", Duration = "45 mins", XpReward = 80 }
+                }
             };
         }
 
