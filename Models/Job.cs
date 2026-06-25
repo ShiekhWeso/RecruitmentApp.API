@@ -11,5 +11,8 @@
         public int MinScore { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime PostedAt { get; set; } = DateTime.UtcNow;
+        public string Description { get; set; } = string.Empty;
+        public string Requirements { get; set; } = string.Empty; 
+        public string RequiredSkills { get; set; } = string.Empty; 
     }
 }

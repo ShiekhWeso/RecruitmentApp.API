@@ -50,7 +50,7 @@ namespace RecruitmentApp.API.Services
             }).OrderByDescending(j => j.MatchPercentage).ToList();
         }
 
-        public async Task<JobMatchListDto> GetJobDetail(Guid jobId, Guid userId)
+        public async Task<JobDetailDto> GetJobDetail(Guid jobId, Guid userId)
         {
             var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == jobId);
             if (job == null) throw new Exception("Job not found");
@@ -65,7 +65,22 @@ namespace RecruitmentApp.API.Services
                 ? Math.Min(100, userScore + new Random().Next(-10, 10))
                 : Math.Max(30, userScore - new Random().Next(10, 20));
 
-            return new JobMatchListDto
+            var requirements = string.IsNullOrEmpty(job.Requirements)
+                ? new List<string>()
+                : System.Text.Json.JsonSerializer.Deserialize<List<string>>(job.Requirements) ?? new();
+
+            var requiredSkills = string.IsNullOrEmpty(job.RequiredSkills)
+                ? new List<JobSkillDto>()
+                : System.Text.Json.JsonSerializer.Deserialize<List<string>>(job.RequiredSkills)!
+                    .Select(skill => new JobSkillDto
+                    {
+                        SkillName = skill,
+                        NeededScore = 70,
+                        UserScore = userScore,
+                        IsMet = userScore >= 70
+                    }).ToList();
+
+            return new JobDetailDto
             {
                 Id = job.Id,
                 Title = job.Title,
@@ -73,7 +88,10 @@ namespace RecruitmentApp.API.Services
                 Location = job.Location,
                 JobType = job.JobType,
                 MatchPercentage = matchPercentage,
-                Field = job.Field
+                Field = job.Field,
+                Description = job.Description,
+                Requirements = requirements,
+                RequiredSkills = requiredSkills
             };
         }
 
