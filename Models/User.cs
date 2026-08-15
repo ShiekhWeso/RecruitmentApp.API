@@ -1,4 +1,6 @@
-﻿namespace RecruitmentApp.API.Models
+﻿using Microsoft.Identity.Client;
+
+namespace RecruitmentApp.API.Models
 {
     public class User
     {
@@ -15,5 +17,14 @@
         public bool HasCv { get; set; } = false;
         public string? Locatoin { get; set; }
         public int XP { get; set; } = 0;
+        public string? Phone { get; set; }
+        public string? AvatarUrl { get; set; }
+        public bool IncognitoMode { get; set; } = false;
+        public bool ProfileVisible { get; set; } = true;
+        public bool PushNotifications { get; set; } = true;
+        public string Language { get; set; } = "English";
+        public string Region { get; set; } = "Egypt";
+        public string SubscriptionPlan { get; set; } = "Free";
+        public bool IsDeleted { get; set; } = false;
     }
-}
+}   
