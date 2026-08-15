@@ -94,23 +94,51 @@ namespace RecruitmentApp.API.Services
             var options = new SetupOptionsDto
             {
                 Fields = new List<FieldWithSpecializationsDto>
-        {
-            new FieldWithSpecializationsDto { Name = "Software Dev", Specializations = new List<string> { "Frontend Developer", "Backend Developer", "Full Stack Developer", "Mobile Developer", "DevOps Engineer", "Data Scientist" } },
-            new FieldWithSpecializationsDto { Name = "Marketing", Specializations = new List<string> { "Digital Marketing", "Content Marketing", "SEO Specialist", "Social Media Manager", "Brand Manager" } },
-            new FieldWithSpecializationsDto { Name = "Design", Specializations = new List<string> { "UI/UX Designer", "Graphic Designer", "Motion Designer", "Product Designer" } },
-            new FieldWithSpecializationsDto { Name = "Finance", Specializations = new List<string> { "Financial Analyst", "Accountant", "Investment Banker", "Risk Analyst" } },
-            new FieldWithSpecializationsDto { Name = "Human Resources", Specializations = new List<string> { "HR Generalist", "Recruiter", "Training Specialist", "Compensation Analyst" } },
-            new FieldWithSpecializationsDto { Name = "Sales", Specializations = new List<string> { "Sales Representative", "Account Manager", "Business Development", "Sales Manager" } }
-        },
+                {
+                    new FieldWithSpecializationsDto { Name = "Software Dev", Specializations = new List<string> { "Frontend Developer", "Backend Developer", "Full Stack Developer", "Mobile Developer", "DevOps Engineer", "Data Scientist" } },
+                    new FieldWithSpecializationsDto { Name = "Marketing", Specializations = new List<string> { "Digital Marketing", "Content Marketing", "SEO Specialist", "Social Media Manager", "Brand Manager" } },
+                    new FieldWithSpecializationsDto { Name = "Design", Specializations = new List<string> { "UI/UX Designer", "Graphic Designer", "Motion Designer", "Product Designer" } },
+                    new FieldWithSpecializationsDto { Name = "Finance", Specializations = new List<string> { "Financial Analyst", "Accountant", "Investment Banker", "Risk Analyst" } },
+                    new FieldWithSpecializationsDto { Name = "Human Resources", Specializations = new List<string> { "HR Generalist", "Recruiter", "Training Specialist", "Compensation Analyst" } },
+                    new FieldWithSpecializationsDto { Name = "Sales", Specializations = new List<string> { "Sales Representative", "Account Manager", "Business Development", "Sales Manager" } }
+                },
                 ExperienceLevels = new List<string>
-        {
-            "Junior (0-2 years)",
-            "Mid-level (2-5 years)",
-            "Senior (5+ years)"
-        }
+                {
+                    "Junior (0-2 years)",
+                    "Mid-level (2-5 years)",
+                    "Senior (5+ years)"
+                }
             };
-
             return Task.FromResult(options);
         }
+
+        public async Task<SettingsResponseDto> GetSettings(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User Not found");
+
+            return MapToSettingsDto(user);
+        }
+        
+        public async Task<SettingsResponseDto> UpdatePersonalInfo(Guid userId, UpdatePersonalInfoDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            return MapToSettingsDto(user);
+        }
+
+        private SettingsResponseDto MapToSettingsDto(Models.User user) => new()
+        {
+            Name = user.Name,
+            Email = user.Email,
+            Phone = user.Phone,
+            AvatarUrl = user.AvatarUrl,
+            SubscriptionPlan = user.SubscriptionPlan,
+            IncognitoMode = user.IncognitoMode,
+            ProfileVisible = user.ProfileVisible,
+            PushNotifications = user.PushNotifications,
+            Language = user.Language,
+            Region = user.Region
+        };
     }
 }
