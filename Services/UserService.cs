@@ -123,8 +123,124 @@ namespace RecruitmentApp.API.Services
         public async Task<SettingsResponseDto> UpdatePersonalInfo(Guid userId, UpdatePersonalInfoDto dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
 
+            if (!string.IsNullOrEmpty(dto.Name)) user.Name = dto.Name;
+            if (!string.IsNullOrEmpty(dto.Phone)) user.Phone = dto.Phone;
+            if (!string.IsNullOrEmpty(dto.AvatarUrl)) user.AvatarUrl = dto.AvatarUrl;
+            if (!string.IsNullOrEmpty(dto.Location)) user.Locatoin = dto.Location;
+
+            await _context.SaveChangesAsync();
             return MapToSettingsDto(user);
+        }
+
+        public async Task<bool> ChangePassword(Guid userId, ChangePasswordDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+                throw new Exception("Current password is incorrect");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<SettingsResponseDto> UpdatePrivacy(Guid userId, UpdatePrivacyDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (dto.IncognitoMode.HasValue) user.IncognitoMode = dto.IncognitoMode.Value;
+            if (dto.ProfileVisible.HasValue) user.ProfileVisible = dto.ProfileVisible.Value;
+
+            await _context.SaveChangesAsync();
+            return MapToSettingsDto(user);
+        }
+
+        public async Task<SettingsResponseDto> UpdateNotifications(Guid userId, UpdateNotificationsDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (dto.PushNotifications.HasValue) user.PushNotifications = dto.PushNotifications.Value;
+
+            await _context.SaveChangesAsync();
+            return MapToSettingsDto(user);
+        }
+
+        public async Task<SettingsResponseDto> UpdateLanguage(Guid userId, UpdateLanguageDto dto)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            if (!string.IsNullOrEmpty(dto.Language)) user.Language = dto.Language;
+            if (!string.IsNullOrEmpty(dto.Region)) user.Region = dto.Region;
+
+            await _context.SaveChangesAsync();
+            return MapToSettingsDto(user);
+        }
+
+        public async Task<SubscriptionPlanDto> GetSubscriptionPlans(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            return new SubscriptionPlanDto
+            {
+                CurrentPlan = user.SubscriptionPlan,
+                Plans = new List<PlanOptionDto>
+        {
+            new()
+            {
+                Name = "Free",
+                MonthlyPrice = 0,
+                AnnualPrice = 0,
+                Features = new List<string>
+                {
+                    "Basic skills assessment",
+                    "Standard public profile",
+                    "Community access"
+                },
+                IsRecommended = false
+            },
+            new()
+            {
+                Name = "Pro",
+                MonthlyPrice = 199,
+                AnnualPrice = 159,
+                Features = new List<string>
+                {
+                    "Unlimited expert assessments",
+                    "Priority ranking in search",
+                    "Verified trust badge",
+                    "Detailed performance analytics"
+                },
+                IsRecommended = true
+            }
+        }
+            };
+        }
+
+        public async Task<bool> UpgradeToPro(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.SubscriptionPlan = "Pro";
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAccount(Guid userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) throw new Exception("User not found");
+
+            user.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         private SettingsResponseDto MapToSettingsDto(Models.User user) => new()
