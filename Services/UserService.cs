@@ -191,35 +191,35 @@ namespace RecruitmentApp.API.Services
             {
                 CurrentPlan = user.SubscriptionPlan,
                 Plans = new List<PlanOptionDto>
-        {
-            new()
-            {
-                Name = "Free",
-                MonthlyPrice = 0,
-                AnnualPrice = 0,
-                Features = new List<string>
                 {
-                    "Basic skills assessment",
-                    "Standard public profile",
-                    "Community access"
-                },
-                IsRecommended = false
-            },
-            new()
-            {
-                Name = "Pro",
-                MonthlyPrice = 199,
-                AnnualPrice = 159,
-                Features = new List<string>
-                {
-                    "Unlimited expert assessments",
-                    "Priority ranking in search",
-                    "Verified trust badge",
-                    "Detailed performance analytics"
-                },
-                IsRecommended = true
-            }
-        }
+                    new()
+                    {
+                        Name = "Free",
+                        MonthlyPrice = 0,
+                        AnnualPrice = 0,
+                        Features = new List<string>
+                        {
+                            "Basic skills assessment",
+                            "Standard public profile",
+                            "Community access"
+                        },
+                        IsRecommended = false
+                    },
+                    new()
+                    {
+                        Name = "Pro",
+                        MonthlyPrice = 199,
+                        AnnualPrice = 159,
+                        Features = new List<string>
+                        {
+                            "Unlimited expert assessments",
+                            "Priority ranking in search",
+                            "Verified trust badge",
+                            "Detailed performance analytics"
+                        },
+                        IsRecommended = true
+                    }
+                }
             };
         }
 
