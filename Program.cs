@@ -66,6 +66,7 @@ builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRankService, RankService>();
+builder.Services.AddScoped<IGamificationService, GamificationService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
