@@ -25,5 +25,10 @@ namespace RecruitmentApp.API.Data
         public DbSet<Badge> Badges { get; set; }
         public DbSet<UserBadge> UserBadges { get; set; }
         public DbSet<Milestone> Milestones { get; set; }
+        public DbSet<StudyGroup> StudyGroups { get; set; }
+        public DbSet<StudyGroupMember> StudyGroupMembers { get; set; }
+        public DbSet<StudyGroupMessage> StudyGroupMessages { get; set; }
+        public DbSet<WeeklyPlan> WeeklyPlans { get; set; }
+        public DbSet<DailyChallenge> DailyChallenges { get; set; }
     }
 }
