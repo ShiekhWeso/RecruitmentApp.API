@@ -30,5 +30,8 @@ namespace RecruitmentApp.API.Data
         public DbSet<StudyGroupMessage> StudyGroupMessages { get; set; }
         public DbSet<WeeklyPlan> WeeklyPlans { get; set; }
         public DbSet<DailyChallenge> DailyChallenges { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<RoadmapStep> RoadmapSteps { get; set; }
+        public DbSet<MockInterview> MockInterviews { get; set; }
     }
 }
